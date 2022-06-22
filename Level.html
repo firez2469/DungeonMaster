@@ -1,0 +1,549 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no"><title>DNDManager</title><link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css"><link rel="stylesheet" href="assets/fonts/fontawesome-all.min.css"><link rel="stylesheet" href="assets/css/styles.min.css"></head><body id="body"><nav class="navbar navbar-light navbar-expand-md py-3"><div class="container"><a class="navbar-brand d-flex align-items-center" href="index.html"><span class="bs-icon-sm bs-icon-rounded bs-icon-primary d-flex justify-content-center align-items-center me-2 bs-icon"><i class="fas fa-scroll"></i></span><span>DndManager</span></a><button data-bs-toggle="collapse" class="navbar-toggler" data-bs-target="#navcol-1"><span class="visually-hidden">Toggle navigation</span><span class="navbar-toggler-icon"></span></button><div class="collapse navbar-collapse" id="navcol-1"><ul class="navbar-nav me-auto"><li class="nav-item"><a class="nav-link active" href="TemplatePage.html">Templates</a></li><li class="nav-item"><a class="nav-link" href="Levels.html">Levels</a></li></ul><h6 class="text-end" id="loggedInAs" style="transform: translateX(-29px);text-align: left;">Logged in as: None</h6><button class="btn btn-primary" id="save" type="button" style="transform: translateX(-5px);">Save</button><button class="btn btn-primary" id="logout" type="button" style="transform: translateX(0px);">Logout</button></div></div></nav><div class="row"><div class="col"><h1 style="transform: translateX(6px);">Level:</h1></div><div class="col"><input class="form-control-sm" type="text" id="level" style="font-size: 31px;"></div></div><div style="height: 22px;"></div><div class="row text-start"><div class="col"><h3 style="transform: translateX(6px);">Description:</h3></div><div class="col"><textarea id="level_desc"></textarea></div></div><h3>Scene</h3><div class="btn-group" role="group"><button class="btn btn-primary" id="create_mode_btn" type="button" onclick="mode(&quot;create&quot;); setState(&quot;create&quot;);">Create Mode</button><button class="btn btn-primary" id="edit_mode_btn" type="button" onclick="mode(&quot;edit&quot;); setState(&quot;edit&quot;);">Edit Mode</button><button class="btn btn-primary" id="clearbtn" type="button">Clear</button></div><div class="row"><div class="col">
+<div>
+
+  <canvas style="border: 1px solid black;" id="#playersCanvas"></canvas>
+
+
+  <script type="module">
+
+    import { createNewObject,loadObjectData, setEntityData, getTemplates, loadedPreviousEntityData } from "./FirebaseLoader.mjs";
+    import {entityData} from "./FirebaseLoader.mjs";
+
+    //Set initial button onclicks
+    var create_mode_btn = document.getElementById("create_mode_btn");
+    var edit_mode_btn = document.getElementById("edit_mode_btn");
+    create_mode_btn.onclick=function(){
+      mode("create");
+      setState("create");
+    }
+    edit_mode_btn.onclick = function(){
+      mode("edit");
+      setState("edit");
+    }
+
+    //TODO:Implement templates with random colors
+    //1. Load all templates in spawnable section
+    //2. Assign each one a random color (tint) in spawnable
+    //3. When a tmplate is selected, change the image that is with cursor.
+    //4. When placed down save to placedObjects array.
+    //5. Add all new fields (x,y,color,name,desc, and each template fields to save)
+
+  
+    var canvas = document.getElementById("#playersCanvas");
+    var ctx = canvas.getContext("2d");
+    ctx.font = "16px Arial";
+    ctx.canvas.width = window.innerWidth*.75;
+    ctx.canvas.height = window.innerHeight/2;
+    var pPosX = 0;
+    var pPosY = 0;
+    //Needs to be replicated in FirebaseLoader as well.
+    var playerIconLink = 'https://pic.onlinewebfonts.com/svg/img_235012.png';
+    var enemyIconLink = 'https://media.discordapp.net/attachments/884300143548063754/985266517744685096/full-face.png';
+   
+   
+    var typeSelected = "player";
+
+    var img_icon = new Image();
+    img_icon.src = playerIconLink;
+
+
+    var placedObjects=[];
+    var templateObjects = [];
+    var canvasX;
+    var canvasY;
+    ctx.fillStyle="#09f";
+    var currentColor = ctx.fillStyle;
+
+    var state = "create";
+
+    var playersIndex = 0;
+
+    var selectedNameVar;
+
+    var isDown = false;
+    var imgWidth = 20;
+    var imgHeight = 20;
+    var wasFirebaseLoaded = false;
+
+    window.onload = function(){
+      selectedNameVar = document.getElementById("namefield");
+      
+      
+
+      
+    }
+    document.getElementById("clearbtn").onclick=function(){
+      clearScreen();
+    }
+    //Represents the index of the selected entity.
+    var selectedIndex = -1;
+
+    //setInterval(function(){renderCanvas();},500);
+    function renderCanvas(){
+      ctx.canvas.width = window.innerWidth*.6;
+      ctx.canvas.height = window.innerHeight/2;
+      var cRect = canvas.getBoundingClientRect();
+      canvasX = Math.round(e.clientX - cRect.left);
+      canvasY = Math.round(e.clientY - cRect.top);
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+      //typeSelected = window.sessionStorage.getItem('type_selected');
+      
+      setOnClicks();
+      
+      
+      for(let i=0;i<placedObjects.length;i++){
+        if(typeof(placedObjects[i]["img"])!="object"){
+          
+          var newImg = new Image();
+          if(placedObjects[i]["img"]=="player"){
+            newImg.src=playerIconLink;
+          }else{
+            newImg.src = enemyIconLink;
+          }
+          
+          placedObjects[i]["img"]=newImg;
+        }
+        //console.log(placedObjects[i])
+        draw_img(
+          ctx,
+          placedObjects[i]["img"],
+          placedObjects[i]["color"],
+          placedObjects[i]["x"],
+          placedObjects[i]["y"],
+          imgWidth,
+          imgHeight);
+      }
+
+      if(state == "create"){
+        setImage();
+        draw_img(ctx,img_icon,currentColor,canvasX-(imgWidth/2),canvasY-(imgHeight/2),imgWidth,imgHeight);
+      }
+      else if(state == "edit"){
+        if(isDown){
+          //console.log("Dragging");
+          //console.log(selectedNameVar);
+          //console.log(selectedIndex);
+          //console.log(placedObjects[selectedIndex]);
+          if(dist(parseFloat(placedObjects[selectedIndex]["x"]),parseFloat(placedObjects[selectedIndex]["y"]),canvasX-(imgWidth/2),canvasY-(imgHeight/2)) < 150){
+            placedObjects[selectedIndex]["x"]=canvasX-(imgWidth/2);
+            placedObjects[selectedIndex]["y"]=canvasY-(imgHeight/2);
+          }
+
+        }
+         
+      }
+     
+ 
+      /*ctx.fillStyle=currentColor;
+      ctx.fillRect(canvasX-(imgWidth/2),canvasY-(imgHeight/2),imgWidth,imgHeight);
+
+      ctx.globalCompositeOperation="destination-in";
+      /*ctx.drawImage(img_icon,
+        canvasX-(imgWidth/2),
+        canvasY-(imgHeight/2),
+        imgWidth,
+        imgHeight
+      
+      );
+      ctx.drawImage(img_icon,canvasX-(imgWidth/2),canvasY-(imgHeight/2),imgWidth,imgHeight);*/
+
+
+
+    }
+
+    canvas.addEventListener("mousemove", function(e){
+      ctx.canvas.width = window.innerWidth*.6;
+      ctx.canvas.height = window.innerHeight/2;
+      var cRect = canvas.getBoundingClientRect();
+      canvasX = Math.round(e.clientX - cRect.left);
+      canvasY = Math.round(e.clientY - cRect.top);
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+      //typeSelected = window.sessionStorage.getItem('type_selected');
+      
+      setOnClicks();
+      
+      
+      for(let i=0;i<placedObjects.length;i++){
+        if(typeof(placedObjects[i]["img"])!="object"){
+          
+          var newImg = new Image();
+          if(placedObjects[i]["img"]=="player"){
+            newImg.src=playerIconLink;
+          }else{
+            newImg.src = enemyIconLink;
+          }
+          
+          placedObjects[i]["img"]=newImg;
+        }
+        //console.log(placedObjects[i])
+        draw_img(
+          ctx,
+          placedObjects[i]["img"],
+          placedObjects[i]["color"],
+          placedObjects[i]["x"],
+          placedObjects[i]["y"],
+          imgWidth,
+          imgHeight);
+      }
+
+      if(state == "create"){
+        setImage();
+        draw_img(ctx,img_icon,currentColor,canvasX-(imgWidth/2),canvasY-(imgHeight/2),imgWidth,imgHeight);
+      }
+      else if(state == "edit"){
+        if(isDown){
+          //console.log("Dragging");
+          //console.log(selectedNameVar);
+          //console.log(selectedIndex);
+          //console.log(placedObjects[selectedIndex]);
+          if(dist(parseFloat(placedObjects[selectedIndex]["x"]),parseFloat(placedObjects[selectedIndex]["y"]),canvasX-(imgWidth/2),canvasY-(imgHeight/2)) < 150){
+            placedObjects[selectedIndex]["x"]=canvasX-(imgWidth/2);
+            placedObjects[selectedIndex]["y"]=canvasY-(imgHeight/2);
+          }
+
+        }
+         
+      }
+     
+ 
+      /*ctx.fillStyle=currentColor;
+      ctx.fillRect(canvasX-(imgWidth/2),canvasY-(imgHeight/2),imgWidth,imgHeight);
+
+      ctx.globalCompositeOperation="destination-in";
+      /*ctx.drawImage(img_icon,
+        canvasX-(imgWidth/2),
+        canvasY-(imgHeight/2),
+        imgWidth,
+        imgHeight
+      
+      );
+      ctx.drawImage(img_icon,canvasX-(imgWidth/2),canvasY-(imgHeight/2),imgWidth,imgHeight);*/
+
+    });
+    canvas.addEventListener("click",function(e){
+      setOnClicks();
+      isDown=false;
+      if(state == "create"){
+        var name = getNewName();
+        var templateInd=typeSelected;
+        if(typeSelected.includes("template")){
+          templateInd=typeSelected.split("template")[1];
+        }
+        var templates = getTemplates();
+        var template_vals = templates[templateInd];
+        //console.log("applying template data:");
+        //console.log(template_vals);
+        var placedObjectsElement = {
+          "img":img_icon,
+          "x":canvasX-(imgWidth/2),
+          "y":canvasY-(imgHeight/2),
+          "color":currentColor,
+          "name":name,
+          "desc":"",
+          "template":templateInd
+        };
+        for(var key in template_vals){
+          if(key != "name"){
+            placedObjectsElement[key] = template_vals[key];
+            if(template_vals[key]==undefined||template_vals[key]=="undefined"||template_vals[key]==null){
+              if(key != "skills"||key!="abilities"||key!="spells"||key!="desc"){
+                placedObjectsElement[key]=10;
+              }else{
+                placedObjectsElement[key]="N/A";
+              }
+            }
+          }
+            
+        }
+        placedObjects.push(placedObjectsElement);
+        //console.log("Name:"+name);
+        currentColor='hsl('+360*Math.random()+', 50%, 50%';
+        img_icon=new Image();
+        img_icon.src = playerIconLink;
+      }else if(state == "edit"){
+        
+        //finds closest entity.
+        for(var i =0;i<placedObjects.length;i++){
+          if(placedObjects[i] != undefined){
+            var dist_tot = dist(canvasX,canvasY,parseFloat(placedObjects[i]["x"])+(imgWidth/2),parseFloat(placedObjects[i]["y"])+(imgHeight/2));
+            //console.log(placedObjects[i]["x"]);
+            //console.log("DIST:"+dist_tot);
+           // console.log("Image Size:"+imgWidth);
+            if(dist_tot<=imgWidth*0.75){
+              updateEntityValues(i,selectedNameVar);
+              //get fields
+              selectedNameVar = document.getElementById("namefield");
+              var descfield = document.getElementById("descfield");
+              var acfield = document.getElementById("acfield");
+              var hpfield = document.getElementById("hpfield");
+              var sizefield = document.getElementById("sizefield");
+              var speedfield = document.getElementById("speedfield");
+              var strfield = document.getElementById("strfield");
+              var dexfield = document.getElementById("dexfield");
+              var confield = document.getElementById("confield");
+              var intfield = document.getElementById("intfield");
+              var wisfield = document.getElementById("wisfield");
+              var chafield = document.getElementById("chafield");
+              var skillsfield = document.getElementById("skillsfield");;
+              var abilitiesfield = document.getElementById("abilitiesfield");
+              var spellsfield=document.getElementById("spellsfield");
+
+              //update prev entity based on old data
+              if(selectedIndex!=-1){
+                placedObjects[selectedIndex]["name"]=selectedNameVar.innerHTML;
+                placedObjects[selectedIndex]["desc"] = descfield.innerHTML;
+                placedObjects[selectedIndex]["ac"]=acfield.value;
+                placedObjects[selectedIndex]["hp"]=hpfield.value;
+                placedObjects[selectedIndex]["size"]=sizefield.value;
+                placedObjects[selectedIndex]["speed"]=speedfield.value;
+                placedObjects[selectedIndex]["str"]=strfield.value;
+                placedObjects[selectedIndex]["dex"]=dexfield.value;
+                placedObjects[selectedIndex]["con"]=confield.value;
+                placedObjects[selectedIndex]["int"]=intfield.value;
+                placedObjects[selectedIndex]["wis"]=wisfield.value;
+                placedObjects[selectedIndex]["cha"]=chafield.value;
+                placedObjects[selectedIndex]["skills"]=skillsfield.value;
+                placedObjects[selectedIndex]["abilities"]=abilitiesfield.value;
+                placedObjects[selectedIndex]["spells"]=spellsfield.value;
+              }
+              
+              //update fields with new entity data.
+              selectedNameVar.innerHTML = placedObjects[i]["name"];
+              descfield.innerHTML=placedObjects[i]["desc"];
+              acfield.value = placedObjects[i]["ac"];
+              hpfield.value = placedObjects[i]["hp"];
+              sizefield.value = placedObjects[i]["size"];
+              speedfield.value = placedObjects[i]["speed"];
+              strfield.value = placedObjects[i]["str"];
+              dexfield.value = placedObjects[i]["dex"];
+              confield.value = placedObjects[i]["con"];
+              intfield.value = placedObjects[i]["int"];
+              wisfield.value = placedObjects[i]["wis"];
+              chafield.value = placedObjects[i]["cha"];
+              skillsfield.value = placedObjects[i]["skills"];
+              abilitiesfield.value = placedObjects[i]["abilities"];
+              spellsfield.value = placedObjects[i]["spells"];
+              
+              selectedIndex=i;
+              //update firebase
+              //console.log("Template:"+placedObjects[i]["template"]);
+              createNewObject(placedObjects[i]["template"]);
+              var curLvl = window.sessionStorage.getItem("levelLoad");
+              curLvl = curLvl.replace("enterlvl","");
+              loadObjectData(placedObjects[i]["template"],curLvl,placedObjects[i][["name"]]);
+              
+            }
+            
+
+          }
+        
+        }
+      
+      }
+      
+      var data =setEntityData(placedObjects);
+      
+    });
+    
+
+    canvas.addEventListener("mousedown",function(e){
+      
+      isDown=true;
+      if(state == "edit"){
+        for(var i =0;i<placedObjects.length;i++){
+          if(placedObjects[i] != undefined){
+            var dist_tot = dist(canvasX,canvasY,parseFloat(placedObjects[i]["x"])+(imgWidth/2),parseFloat(placedObjects[i]["y"])+(imgHeight/2));
+            //console.log("DIST:"+dist_tot);
+            //console.log("Image Size:"+imgWidth);
+            if(dist_tot<=imgWidth*0.75){
+              selectedNameVar = document.getElementById("namefield");
+              updateEntityValues(i,selectedNameVar);
+              if(selectedIndex!=-1){
+                placedObjects[selectedIndex]["name"]=selectedNameVar.innerHTML;
+              }
+              //console.log("Pressed:"+placedObjects[i]["name"]);
+              
+              selectedNameVar.innerHTML = placedObjects[i]["name"];
+              selectedIndex=i;
+            }
+            
+
+          }
+        
+        }
+      }
+    });
+
+    canvas.addEventListener("mouseup",function(e){
+      var data =setEntityData(placedObjects);
+      
+
+
+      isDown=false;
+      if(state == "edit"){
+        
+      }
+    });
+
+    function draw_img(ctx,imgObj,color,x,y,width,height){
+      if(imgObj.complete){
+        //ctx.fillStyle=color;
+        //ctx.fillRect(x,y,width,height);
+        //ctx.globalCompositeOperation="destination-in";
+        ctx.drawImage(imgObj,x,y,width,height);
+      }
+      
+
+    }
+
+    export function setState(newState){
+      state=newState;
+      var data =setEntityData(placedObjects);
+      
+    }
+    function clicked(name){
+      console.log("Clicked:"+name);
+      typeSelected=name;
+      console.log("Changed to:"+typeSelected);
+    }
+
+    function dist(x1,y1,x2,y2){
+      
+      return Math.sqrt(((x1-x2)**2)+((y1-y2)**2));
+    }
+
+    function setImage(){
+      //console.log("Type:"+typeSelected);
+      if(typeSelected == "player"){
+        img_icon.src = playerIconLink;
+
+      }else if(typeSelected.includes("template")){
+        img_icon.src = enemyIconLink;
+      }
+    }
+    //gets a name with incrementing numbers
+    function getNewName(){
+      if(typeSelected == "player"){
+        playersIndex++;
+        return "Player"+playersIndex;
+      }else if(typeSelected.includes("template")){
+        
+        
+        var newName = "template"+Math.max(typeSelected.replace("template",""),0);
+        console.log("searching:"+newName);
+        var template_name = document.getElementById(newName).querySelector("#template_name").innerHTML;
+
+        return template_name+placedObjects.length;
+      }
+      return "entity"+placedObjects.length;
+    }
+
+    var p_icon = document.getElementById("player_icon").onclick = function(){clicked("player");}
+    console.log(!!p_icon);
+    setOnClicks();
+    
+    function setOnClicks(){
+      var sel = 0;
+    //console.log("Loaded");
+    //console.log(!!document.getElementById("template"+sel));
+    while(!!document.getElementById("template"+sel)){
+      
+      let sval = 0;
+      sval = sel;
+      const selBtn = document.getElementById("template"+sel).querySelector("#template"+sel+"_btn").onclick=function(){
+        clicked("template"+sval);
+      }
+      sel++;
+    }
+    }
+
+    function updateEntityValues(i,selectedNameVar){
+              selectedNameVar = document.getElementById("namefield");
+              var descfield = document.getElementById("descfield");
+              var acfield = document.getElementById("acfield");
+              var hpfield = document.getElementById("hpfield");
+              var sizefield = document.getElementById("sizefield");
+              var speedfield = document.getElementById("speedfield");
+              var strfield = document.getElementById("strfield");
+              var dexfield = document.getElementById("dexfield");
+              var confield = document.getElementById("confield");
+              var intfield = document.getElementById("intfield");
+              var wisfield = document.getElementById("wisfield");
+              var chafield = document.getElementById("chafield");
+              var skillsfield = document.getElementById("skillsfield");;
+              var abilitiesfield = document.getElementById("abilitiesfield");
+              var spellsfield=document.getElementById("spellsfield");
+
+              //update prev entity based on old data
+              if(selectedIndex!=-1){
+                placedObjects[selectedIndex]["name"]=selectedNameVar.innerHTML;
+                placedObjects[selectedIndex]["desc"] = descfield.innerHTML;
+                placedObjects[selectedIndex]["ac"]=acfield.value;
+                placedObjects[selectedIndex]["hp"]=hpfield.value;
+                placedObjects[selectedIndex]["size"]=sizefield.value;
+                placedObjects[selectedIndex]["speed"]=speedfield.value;
+                placedObjects[selectedIndex]["str"]=strfield.value;
+                placedObjects[selectedIndex]["dex"]=dexfield.value;
+                placedObjects[selectedIndex]["con"]=confield.value;
+                placedObjects[selectedIndex]["int"]=intfield.value;
+                placedObjects[selectedIndex]["wis"]=wisfield.value;
+                placedObjects[selectedIndex]["cha"]=chafield.value;
+                placedObjects[selectedIndex]["skills"]=skillsfield.value;
+                placedObjects[selectedIndex]["abilities"]=abilitiesfield.value;
+                placedObjects[selectedIndex]["spells"]=spellsfield.value;
+              }
+              //console.log("Pressed:"+placedObjects[i]["name"]);
+              //update fields with new entity data.
+              selectedNameVar.innerHTML = placedObjects[i]["name"];
+              descfield.innerHTML=placedObjects[i]["desc"];
+              acfield.value = placedObjects[i]["ac"];
+              hpfield.value = placedObjects[i]["hp"];
+              sizefield.value = placedObjects[i]["size"];
+              speedfield.value = placedObjects[i]["speed"];
+              strfield.value = placedObjects[i]["str"];
+              dexfield.value = placedObjects[i]["dex"];
+              confield.value = placedObjects[i]["con"];
+              intfield.value = placedObjects[i]["int"];
+              wisfield.value = placedObjects[i]["wis"];
+              chafield.value = placedObjects[i]["cha"];
+              skillsfield.value = placedObjects[i]["skills"];
+              abilitiesfield.value = placedObjects[i]["abilities"];
+              spellsfield.value = placedObjects[i]["spells"];
+              
+              selectedIndex=i;
+              //update firebase
+              //console.log("Template:"+placedObjects[i]["template"]);
+              createNewObject(placedObjects[i]["template"]);
+              var curLvl = window.sessionStorage.getItem("levelLoad");
+              curLvl = curLvl.replace("enterlvl","");
+              loadObjectData(placedObjects[i]["template"],curLvl,placedObjects[i][["name"]]);
+    }
+
+    function checkAndLoadFromFirebase(){
+      
+      if(!wasFirebaseLoaded){
+        var output = loadedPreviousEntityData(placedObjects);
+        //console.log("Loaded:");
+        //console.log(entityData);
+        placedObjects=entityData;
+        wasFirebaseLoaded=output[0];
+        clearInterval(); 
+      }
+      return wasFirebaseLoaded;
+    }
+    setInterval(checkAndLoadFromFirebase,500);
+
+    function clearScreen(){
+      placedObjects=[];
+      playersIndex=0;
+
+    }
+
+    setEntityData(placedObjects);
+  </script>
+
+ 
+  
+
+</div>
+<div class="card" id="spawnable_card"><div class="card-body" id="spawnable"><h4 class="card-title">Spawnable</h4><div class="row" id="levelItem"><div class="col"><p><strong>Player</strong><br></p></div><div class="col"><i class="far fa-user" id="player_icon"></i></div><div class="col"><div></div></div></div><div class="row" id="template0"><div class="col"><p id="template_name"><strong>Template X</strong><br></p></div><div class="col"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -64 640 640" width="1em" height="1em" fill="currentColor" id="template0_btn" style="color: var(--bs-pink);"><!--! Font Awesome Free 6.1.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M624.5 347.7c-32.63-12.5-57.38 4.241-75.38 16.49c-17 11.5-23.25 14.37-31.38 11.37c-8.125-3.125-10.88-9.358-15.88-29.36c-3.375-13.12-7.5-29.47-18-42.72c2.25-3 4.5-5.875 6.375-8.625C500.5 304.5 513.8 312 532 312c33.1 0 50.87-25.75 61.1-42.88C604.6 253 609 248 616 248C629.3 248 640 237.3 640 224s-10.75-24-24-24c-34 0-50.88 25.75-62 42.88C543.4 259 539 264 532 264c-17.25 0-37.5-61.38-97.25-101.9L452 127.6C485.4 125.5 512 97.97 512 63.97C512 28.6 483.4 0 448 0s-64 28.6-64 63.97c0 13 4 25.15 10.62 35.28L376.5 135.5C359.5 130.9 340.9 128 320 128S280.5 130.9 263.5 135.5L245.4 99.25C252 89.13 256 76.97 256 63.97C256 28.6 227.4 0 192 0S128 28.6 128 63.97C128 97.97 154.5 125.5 188 127.6l17.25 34.5C145.6 202.5 125.1 264 108 264c-7 0-11.31-5-21.94-21.12C74.94 225.8 57.1 200 24 200C10.75 200 0 210.8 0 224s10.75 24 24 24c7 0 11.37 5 21.1 21.12C57.12 286.3 73.1 312 108 312c18.25 0 31.5-7.5 41.75-17.12C151.6 297.6 153.9 300.5 156.1 303.5c-10.5 13.25-14.62 29.59-18 42.72c-5 20-7.75 26.23-15.88 29.36c-8.125 3-14.37 .1314-31.37-11.37c-18.12-12.25-42.75-28.87-75.38-16.49c-12.38 4.75-18.62 18.61-13.88 30.98c4.625 12.38 18.62 18.62 30.88 13.87C40.75 389.6 46.88 392.4 64 403.9c13.5 9.125 30.75 20.86 52.38 20.86c7.125 0 14.88-1.248 23-4.373c32.63-12.5 40-41.34 45.25-62.46c2.25-8.75 4-14.49 6-18.86c16.62 13.62 37 25.86 61.63 34.23C242.3 410.3 220.1 464 192 464c-13.25 0-24 10.74-24 23.99S178.8 512 192 512c66.75 0 97-88.55 107.4-129.1C306.1 383.6 312.9 384 320 384s13.88-.4706 20.62-1.096C351 423.4 381.3 512 448 512c13.25 0 24-10.74 24-23.99S461.3 464 448 464c-28 0-50.25-53.74-60.25-90.74c24.75-8.375 45-20.56 61.63-34.19c2 4.375 3.75 10.11 6 18.86c5.375 21.12 12.62 49.96 45.25 62.46c8.25 3.125 15.88 4.373 23 4.373c21.62 0 38.83-11.74 52.46-20.86c17-11.5 23.29-14.37 31.42-11.37c12.38 4.75 26.25-1.492 30.88-13.87C643.1 366.3 637 352.5 624.5 347.7zM192 79.97c-8.875 0-16-7.125-16-16S183.1 47.98 192 47.98s16 7.118 16 15.99S200.9 79.97 192 79.97zM448 47.98c8.875 0 16 7.118 16 15.99s-7.125 16-16 16s-16-7.125-16-16S439.1 47.98 448 47.98z"></path></svg></div><div class="col"><div></div></div></div></div></div></div><div class="col"><div class="card"><div class="card-body p-4"><p class="text-primary card-text mb-0">Selected</p><div class="row"><div class="col"><h4>Name:</h4></div><div class="col"><p id="namefield" contenteditable="true" onchange="nameChange()">Null</p></div></div><div class="row"><div class="col"><p>Description:</p></div><div class="col"><p id="descfield" contenteditable="true"></p></div></div><div class="row"><div class="col"><div class="card"><div class="card-header"><h5>AC</h5></div><div class="card-body text-start"><input type="number" id="acfield" style="width: 40.8px;" value="10" min="0" max="20" step="1"></div></div></div><div class="col"><div class="card"><div class="card-header"><h5>HP</h5></div><div class="card-body text-start"><input type="number" id="hpfield" style="width: 40.8px;" value="10" min="0" max="20" step="1"></div></div></div><div class="col"><div class="card"><div class="card-header"><h5>Size</h5></div><div class="card-body text-start"><input type="number" id="sizefield" style="width: 40.8px;" value="10" min="0" max="20" step="1"></div></div></div><div class="col"><div class="card"><div class="card-header"><h5>Speed</h5></div><div class="card-body text-start"><input type="number" id="speedfield" style="width: 40.8px;" value="30" min="0" step="1"></div></div></div></div><div class="row"><div class="col"><div class="card"><div class="card-header"><h5>STR</h5></div><div class="card-body text-start"><input type="number" id="strfield" style="width: 40.8px;" value="10" min="0" max="20" step="1"></div></div></div><div class="col"><div class="card"><div class="card-header"><h5>DEX</h5></div><div class="card-body text-start"><input type="number" id="dexfield" style="width: 40.8px;" value="10" min="0" max="20" step="1"></div></div></div><div class="col"><div class="card"><div class="card-header"><h5>CON</h5></div><div class="card-body text-start"><input type="number" id="confield" style="width: 40.8px;" value="10" min="0" max="20" step="1"></div></div></div><div class="col"><div class="card"><div class="card-header"><h5>INT</h5></div><div class="card-body text-start"><input type="number" id="intfield" style="width: 40.8px;" value="10" min="0" max="20" step="1"></div></div></div><div class="col"><div class="card"><div class="card-header"><h5>WIS</h5></div><div class="card-body text-start"><input type="number" id="wisfield" style="width: 40.8px;" value="10" min="0" max="20" step="1"></div></div></div><div class="col"><div class="card"><div class="card-header"><h5>CHA</h5></div><div class="card-body text-start"><input type="number" id="chafield" style="width: 40.8px;" value="10" min="0" max="20" step="1"></div></div></div></div><div class="row"><div class="col"><div class="card"><div class="card-header"><h5>Skills</h5></div><div class="card-body text-start"><textarea id="skillsfield"></textarea></div></div></div><div class="col"><div class="card"><div class="card-header"><h5>Abilities/Actions/Items</h5></div><div class="card-body text-start"><textarea id="abilitiesfield"></textarea></div></div></div><div class="col"><div class="card"><div class="card-header"><h5>Spells/Cantrips</h5></div><div class="card-body text-start"><textarea id="spellsfield"></textarea></div></div></div></div><div class="d-flex"><div><p class="text-muted mb-0">Erat netus</p></div></div></div></div></div></div><div style="height: 67px;"></div><script src="assets/bootstrap/js/bootstrap.min.js"></script><script src="assets/js/script.min.js"></script><script src="assets/js/FirebaseLoader.mjs" type="module"></script></body></html>
