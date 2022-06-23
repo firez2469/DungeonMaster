@@ -448,6 +448,7 @@ function loadTemplates(login){
             
             //_temp.onclick = function(){clicked("template0")};
             var clone = document.getElementById("template0");
+            console.log("Loading with name:template_name");
             var title = clone.querySelector("#template_name");
             title.innerHTML = value["name"];
             
@@ -459,7 +460,7 @@ function loadTemplates(login){
             let newTempIndex = templateIndex;
            
             clone.id = "template"+newTempIndex;
-            
+            console.log("Loading with name:template0_btn");
             var icon = clone.querySelector("#template0_btn");
             //console.log("Assigned to:"+newTempIndex);
             //icon.onclick = function(){clicked("template"+newTempIndex);};
