@@ -19,7 +19,7 @@ function displayLogin(){
   }else{
     if(!!loginBox){
       loginBox.style.visibility="hidden";
-      window.location = "https://firez2469.github.io/DungeonMaster/Levels.html";
+      window.location = "https://firez2469.github.io/dungeonmaster.github.io/Levels.html";
     }
     
     loggedinText.innerText = "Logged in as: "+loggedInVal;
@@ -30,7 +30,7 @@ function displayLogin(){
 
   logoutBtn.onclick = function(){
     window.sessionStorage.setItem("login",undefined);
-    window.location = "https://firez2469.github.io/DungeonMaster/login.html";
+    window.location = "https://firez2469.github.io/dungeonmaster.github.io/Levels.html";
   }
   
   
@@ -63,7 +63,7 @@ function enterLvlElement(id){
   window.sessionStorage.setItem('levelDesc',desc);
   //console.log("Name:"+name+" desc:"+desc);
 
-  window.location = 'https://firez2469.github.io/DungeonMaster/Level.html';
+  window.location = 'https://firez2469.github.io/dungeonmaster.github.io/Levels.html';
 }
 
 
