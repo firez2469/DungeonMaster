@@ -1,1 +1,536 @@
-console.log("Starting canvas code");import{createNewObject as e,loadObjectData as t,setEntityData as l,getTemplates as n,loadedPreviousEntityData as a}from"./FirebaseLoader.mjs";import{entityData as i}from"./FirebaseLoader.mjs";var d=document.getElementById("create_mode_btn"),o=document.getElementById("edit_mode_btn");d.onclick=function(){mode("create"),setState("create")},o.onclick=function(){mode("edit"),setState("edit")};var c=document.getElementById("#playersCanvas"),m=c.getContext("2d");m.font="16px Arial",m.canvas.width=.75*window.innerWidth,m.canvas.height=window.innerHeight/2;var u="https://pic.onlinewebfonts.com/svg/img_235012.png",s="https://media.discordapp.net/attachments/884300143548063754/985266517744685096/full-face.png",r="player",v=new Image;v.src=u;var f,g,p=[];m.fillStyle="#09f";var y,I=m.fillStyle,E="create",h=0,B=!1,w=!1;window.onload=function(){y=document.getElementById("namefield")},document.getElementById("clearbtn").onclick=function(){p=[],h=0};var L=-1;function x(e,t,l,n,a,i,d){t.complete&&e.drawImage(t,n,a,i,d)}c.addEventListener("mousemove",(function(e){m.canvas.width=.6*window.innerWidth,m.canvas.height=window.innerHeight/2;var t=c.getBoundingClientRect();f=Math.round(e.clientX-t.left),g=Math.round(e.clientY-t.top),m.clearRect(0,0,c.width,c.height),T();for(let e=0;e<p.length;e++){if("object"!=typeof p[e].img){var l=new Image;"player"==p[e].img?l.src=u:l.src=s,p[e].img=l}x(m,p[e].img,p[e].color,p[e].x,p[e].y,20,20)}"create"==E?(k(),x(m,v,I,f-10,g-10,20,20)):"edit"==E&&B&&b(parseFloat(p[L].x),parseFloat(p[L].y),f-10,g-10)<150&&(p[L].x=f-10,p[L].y=g-10)})),c.addEventListener("click",(function(a){if(T(),B=!1,"create"==E){var i=function(){if("player"==r)return"Player"+ ++h;if(r.includes("template")){var e="template"+Math.max(r.replace("template",""),0);return console.log("searching:"+e),document.getElementById(e).querySelector("#template_name").innerHTML+p.length}return"entity"+p.length}(),d=r;r.includes("template")&&(d=r.split("template")[1]);var o=n()[d],c={img:v,x:f-10,y:g-10,color:I,name:i,desc:"",template:d};for(var m in o)"name"!=m&&(c[m]=o[m],null!=o[m]&&"undefined"!=o[m]&&null!=o[m]||(c[m]="skills"!=m||"abilities"!=m||"spells"!=m||"desc"!=m?10:"N/A"));p.push(c),I="hsl("+360*Math.random()+", 50%, 50%",(v=new Image).src=u}else if("edit"==E)for(var s=0;s<p.length;s++){if(null!=p[s])if(b(f,g,parseFloat(p[s].x)+10,parseFloat(p[s].y)+10)<=15){S(s,y),y=document.getElementById("namefield");var w=document.getElementById("descfield"),x=document.getElementById("acfield"),M=document.getElementById("hpfield"),k=document.getElementById("sizefield"),H=document.getElementById("speedfield"),F=document.getElementById("strfield"),_=document.getElementById("dexfield"),z=document.getElementById("confield"),C=document.getElementById("intfield"),j=document.getElementById("wisfield"),q=document.getElementById("chafield"),A=document.getElementById("skillsfield"),R=document.getElementById("abilitiesfield"),W=document.getElementById("spellsfield");-1!=L&&(p[L].name=y.innerHTML,p[L].desc=w.innerHTML,p[L].ac=x.value,p[L].hp=M.value,p[L].size=k.value,p[L].speed=H.value,p[L].str=F.value,p[L].dex=_.value,p[L].con=z.value,p[L].int=C.value,p[L].wis=j.value,p[L].cha=q.value,p[L].skills=A.value,p[L].abilities=R.value,p[L].spells=W.value),y.innerHTML=p[s].name,w.innerHTML=p[s].desc,x.value=p[s].ac,M.value=p[s].hp,k.value=p[s].size,H.value=p[s].speed,F.value=p[s].str,_.value=p[s].dex,z.value=p[s].con,C.value=p[s].int,j.value=p[s].wis,q.value=p[s].cha,A.value=p[s].skills,R.value=p[s].abilities,W.value=p[s].spells,L=s,e(p[s].template);var N=window.sessionStorage.getItem("levelLoad");N=N.replace("enterlvl",""),t(p[s].template,N,p[s][["name"]])}}l(p)})),c.addEventListener("mousedown",(function(e){if(B=!0,"edit"==E)for(var t=0;t<p.length;t++){if(null!=p[t])b(f,g,parseFloat(p[t].x)+10,parseFloat(p[t].y)+10)<=15&&(S(t,y=document.getElementById("namefield")),-1!=L&&(p[L].name=y.innerHTML),y.innerHTML=p[t].name,L=t)}})),c.addEventListener("mouseup",(function(e){l(p);B=!1}));export function setState(e){E=e;l(p)}function M(e){console.log("Clicked:"+e),r=e,console.log("Changed to:"+r)}function b(e,t,l,n){return Math.sqrt((e-l)**2+(t-n)**2)}function k(){"player"==r?v.src=u:r.includes("template")&&(v.src=s)}var H=document.getElementById("player_icon").onclick=function(){M("player")};function T(){for(var e=0;document.getElementById("template"+e);){let t=0;t=e;document.getElementById("template"+e).querySelector("#template"+e+"_btn").onclick=function(){M("template"+t)};e++}}function S(l,n){n=document.getElementById("namefield");var a=document.getElementById("descfield"),i=document.getElementById("acfield"),d=document.getElementById("hpfield"),o=document.getElementById("sizefield"),c=document.getElementById("speedfield"),m=document.getElementById("strfield"),u=document.getElementById("dexfield"),s=document.getElementById("confield"),r=document.getElementById("intfield"),v=document.getElementById("wisfield"),f=document.getElementById("chafield"),g=document.getElementById("skillsfield"),y=document.getElementById("abilitiesfield"),I=document.getElementById("spellsfield");-1!=L&&(p[L].name=n.innerHTML,p[L].desc=a.innerHTML,p[L].ac=i.value,p[L].hp=d.value,p[L].size=o.value,p[L].speed=c.value,p[L].str=m.value,p[L].dex=u.value,p[L].con=s.value,p[L].int=r.value,p[L].wis=v.value,p[L].cha=f.value,p[L].skills=g.value,p[L].abilities=y.value,p[L].spells=I.value),n.innerHTML=p[l].name,a.innerHTML=p[l].desc,i.value=p[l].ac,d.value=p[l].hp,o.value=p[l].size,c.value=p[l].speed,m.value=p[l].str,u.value=p[l].dex,s.value=p[l].con,r.value=p[l].int,v.value=p[l].wis,f.value=p[l].cha,g.value=p[l].skills,y.value=p[l].abilities,I.value=p[l].spells,L=l,e(p[l].template);var E=window.sessionStorage.getItem("levelLoad");E=E.replace("enterlvl",""),t(p[l].template,E,p[l][["name"]])}console.log(!!H),T(),setInterval((function(){if(!w){var e=a(p);p=i,w=e[0],clearInterval()}return w}),500),l(p);
+    console.log("Starting canvas code");
+    import { createNewObject,loadObjectData, setEntityData, getTemplates, loadedPreviousEntityData } from "./FirebaseLoader.mjs";
+    import {entityData} from "./FirebaseLoader.mjs";
+
+    //Set initial button onclicks
+    var create_mode_btn = document.getElementById("create_mode_btn");
+    var edit_mode_btn = document.getElementById("edit_mode_btn");
+    create_mode_btn.onclick=function(){
+      mode("create");
+      setState("create");
+    }
+    edit_mode_btn.onclick = function(){
+      mode("edit");
+      setState("edit");
+    }
+
+    //TODO:Implement templates with random colors
+    //1. Load all templates in spawnable section
+    //2. Assign each one a random color (tint) in spawnable
+    //3. When a tmplate is selected, change the image that is with cursor.
+    //4. When placed down save to placedObjects array.
+    //5. Add all new fields (x,y,color,name,desc, and each template fields to save)
+
+  
+    var canvas = document.getElementById("#playersCanvas");
+    var ctx = canvas.getContext("2d");
+    ctx.font = "16px Arial";
+    ctx.canvas.width = window.innerWidth*.75;
+    ctx.canvas.height = window.innerHeight/2;
+    var pPosX = 0;
+    var pPosY = 0;
+    //Needs to be replicated in FirebaseLoader as well.
+    var playerIconLink = 'https://pic.onlinewebfonts.com/svg/img_235012.png';
+    var enemyIconLink = 'https://media.discordapp.net/attachments/884300143548063754/985266517744685096/full-face.png';
+   
+   
+    var typeSelected = "player";
+
+    var img_icon = new Image();
+    img_icon.src = playerIconLink;
+
+
+    var placedObjects=[];
+    var templateObjects = [];
+    var canvasX;
+    var canvasY;
+    ctx.fillStyle="#09f";
+    var currentColor = ctx.fillStyle;
+
+    var state = "create";
+
+    var playersIndex = 0;
+
+    var selectedNameVar;
+
+    var isDown = false;
+    var imgWidth = 20;
+    var imgHeight = 20;
+    var wasFirebaseLoaded = false;
+
+    window.onload = function(){
+      selectedNameVar = document.getElementById("namefield");
+      
+      
+
+      
+    }
+    document.getElementById("clearbtn").onclick=function(){
+      clearScreen();
+    }
+    //Represents the index of the selected entity.
+    var selectedIndex = -1;
+
+    //setInterval(function(){renderCanvas();},500);
+    function renderCanvas(){
+      ctx.canvas.width = window.innerWidth*.6;
+      ctx.canvas.height = window.innerHeight/2;
+      var cRect = canvas.getBoundingClientRect();
+      canvasX = Math.round(e.clientX - cRect.left);
+      canvasY = Math.round(e.clientY - cRect.top);
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+      //typeSelected = window.sessionStorage.getItem('type_selected');
+      
+      setOnClicks();
+      
+      
+      for(let i=0;i<placedObjects.length;i++){
+        if(typeof(placedObjects[i]["img"])!="object"){
+          
+          var newImg = new Image();
+          if(placedObjects[i]["img"]=="player"){
+            newImg.src=playerIconLink;
+          }else{
+            newImg.src = enemyIconLink;
+          }
+          
+          placedObjects[i]["img"]=newImg;
+        }
+        //console.log(placedObjects[i])
+        draw_img(
+          ctx,
+          placedObjects[i]["img"],
+          placedObjects[i]["color"],
+          placedObjects[i]["x"],
+          placedObjects[i]["y"],
+          imgWidth,
+          imgHeight);
+      }
+
+      if(state == "create"){
+        setImage();
+        draw_img(ctx,img_icon,currentColor,canvasX-(imgWidth/2),canvasY-(imgHeight/2),imgWidth,imgHeight);
+      }
+      else if(state == "edit"){
+        if(isDown){
+          //console.log("Dragging");
+          //console.log(selectedNameVar);
+          //console.log(selectedIndex);
+          //console.log(placedObjects[selectedIndex]);
+          if(dist(parseFloat(placedObjects[selectedIndex]["x"]),parseFloat(placedObjects[selectedIndex]["y"]),canvasX-(imgWidth/2),canvasY-(imgHeight/2)) < 150){
+            placedObjects[selectedIndex]["x"]=canvasX-(imgWidth/2);
+            placedObjects[selectedIndex]["y"]=canvasY-(imgHeight/2);
+          }
+
+        }
+         
+      }
+     
+ 
+      /*ctx.fillStyle=currentColor;
+      ctx.fillRect(canvasX-(imgWidth/2),canvasY-(imgHeight/2),imgWidth,imgHeight);
+
+      ctx.globalCompositeOperation="destination-in";
+      /*ctx.drawImage(img_icon,
+        canvasX-(imgWidth/2),
+        canvasY-(imgHeight/2),
+        imgWidth,
+        imgHeight
+      
+      );
+      ctx.drawImage(img_icon,canvasX-(imgWidth/2),canvasY-(imgHeight/2),imgWidth,imgHeight);*/
+
+
+
+    }
+
+    canvas.addEventListener("mousemove", function(e){
+      ctx.canvas.width = window.innerWidth*.6;
+      ctx.canvas.height = window.innerHeight/2;
+      var cRect = canvas.getBoundingClientRect();
+      canvasX = Math.round(e.clientX - cRect.left);
+      canvasY = Math.round(e.clientY - cRect.top);
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+      //typeSelected = window.sessionStorage.getItem('type_selected');
+      
+      setOnClicks();
+      
+      
+      for(let i=0;i<placedObjects.length;i++){
+        if(typeof(placedObjects[i]["img"])!="object"){
+          
+          var newImg = new Image();
+          if(placedObjects[i]["img"]=="player"){
+            newImg.src=playerIconLink;
+          }else{
+            newImg.src = enemyIconLink;
+          }
+          
+          placedObjects[i]["img"]=newImg;
+        }
+        //console.log(placedObjects[i])
+        draw_img(
+          ctx,
+          placedObjects[i]["img"],
+          placedObjects[i]["color"],
+          placedObjects[i]["x"],
+          placedObjects[i]["y"],
+          imgWidth,
+          imgHeight);
+      }
+
+      if(state == "create"){
+        setImage();
+        draw_img(ctx,img_icon,currentColor,canvasX-(imgWidth/2),canvasY-(imgHeight/2),imgWidth,imgHeight);
+      }
+      else if(state == "edit"){
+        if(isDown){
+          //console.log("Dragging");
+          //console.log(selectedNameVar);
+          //console.log(selectedIndex);
+          //console.log(placedObjects[selectedIndex]);
+          if(dist(parseFloat(placedObjects[selectedIndex]["x"]),parseFloat(placedObjects[selectedIndex]["y"]),canvasX-(imgWidth/2),canvasY-(imgHeight/2)) < 150){
+            placedObjects[selectedIndex]["x"]=canvasX-(imgWidth/2);
+            placedObjects[selectedIndex]["y"]=canvasY-(imgHeight/2);
+          }
+
+        }
+         
+      }
+     
+ 
+      /*ctx.fillStyle=currentColor;
+      ctx.fillRect(canvasX-(imgWidth/2),canvasY-(imgHeight/2),imgWidth,imgHeight);
+
+      ctx.globalCompositeOperation="destination-in";
+      /*ctx.drawImage(img_icon,
+        canvasX-(imgWidth/2),
+        canvasY-(imgHeight/2),
+        imgWidth,
+        imgHeight
+      
+      );
+      ctx.drawImage(img_icon,canvasX-(imgWidth/2),canvasY-(imgHeight/2),imgWidth,imgHeight);*/
+
+    });
+    canvas.addEventListener("click",function(e){
+      setOnClicks();
+      isDown=false;
+      if(state == "create"){
+        var name = getNewName();
+        var templateInd=typeSelected;
+        if(typeSelected.includes("template")){
+          templateInd=typeSelected.split("template")[1];
+        }
+        var templates = getTemplates();
+        var template_vals = templates[templateInd];
+        //console.log("applying template data:");
+        //console.log(template_vals);
+        var placedObjectsElement = {
+          "img":img_icon,
+          "x":canvasX-(imgWidth/2),
+          "y":canvasY-(imgHeight/2),
+          "color":currentColor,
+          "name":name,
+          "desc":"",
+          "template":templateInd
+        };
+        for(var key in template_vals){
+          if(key != "name"){
+            placedObjectsElement[key] = template_vals[key];
+            if(template_vals[key]==undefined||template_vals[key]=="undefined"||template_vals[key]==null){
+              if(key != "skills"||key!="abilities"||key!="spells"||key!="desc"){
+                placedObjectsElement[key]=10;
+              }else{
+                placedObjectsElement[key]="N/A";
+              }
+            }
+          }
+            
+        }
+        placedObjects.push(placedObjectsElement);
+        //console.log("Name:"+name);
+        currentColor='hsl('+360*Math.random()+', 50%, 50%';
+        img_icon=new Image();
+        img_icon.src = playerIconLink;
+      }else if(state == "edit"){
+        
+        //finds closest entity.
+        for(var i =0;i<placedObjects.length;i++){
+          if(placedObjects[i] != undefined){
+            var dist_tot = dist(canvasX,canvasY,parseFloat(placedObjects[i]["x"])+(imgWidth/2),parseFloat(placedObjects[i]["y"])+(imgHeight/2));
+            //console.log(placedObjects[i]["x"]);
+            //console.log("DIST:"+dist_tot);
+           // console.log("Image Size:"+imgWidth);
+            if(dist_tot<=imgWidth*0.75){
+              updateEntityValues(i,selectedNameVar);
+              //get fields
+              selectedNameVar = document.getElementById("namefield");
+              var descfield = document.getElementById("descfield");
+              var acfield = document.getElementById("acfield");
+              var hpfield = document.getElementById("hpfield");
+              var sizefield = document.getElementById("sizefield");
+              var speedfield = document.getElementById("speedfield");
+              var strfield = document.getElementById("strfield");
+              var dexfield = document.getElementById("dexfield");
+              var confield = document.getElementById("confield");
+              var intfield = document.getElementById("intfield");
+              var wisfield = document.getElementById("wisfield");
+              var chafield = document.getElementById("chafield");
+              var skillsfield = document.getElementById("skillsfield");;
+              var abilitiesfield = document.getElementById("abilitiesfield");
+              var spellsfield=document.getElementById("spellsfield");
+
+              //update prev entity based on old data
+              if(selectedIndex!=-1){
+                placedObjects[selectedIndex]["name"]=selectedNameVar.innerHTML;
+                placedObjects[selectedIndex]["desc"] = descfield.innerHTML;
+                placedObjects[selectedIndex]["ac"]=acfield.value;
+                placedObjects[selectedIndex]["hp"]=hpfield.value;
+                placedObjects[selectedIndex]["size"]=sizefield.value;
+                placedObjects[selectedIndex]["speed"]=speedfield.value;
+                placedObjects[selectedIndex]["str"]=strfield.value;
+                placedObjects[selectedIndex]["dex"]=dexfield.value;
+                placedObjects[selectedIndex]["con"]=confield.value;
+                placedObjects[selectedIndex]["int"]=intfield.value;
+                placedObjects[selectedIndex]["wis"]=wisfield.value;
+                placedObjects[selectedIndex]["cha"]=chafield.value;
+                placedObjects[selectedIndex]["skills"]=skillsfield.value;
+                placedObjects[selectedIndex]["abilities"]=abilitiesfield.value;
+                placedObjects[selectedIndex]["spells"]=spellsfield.value;
+              }
+              
+              //update fields with new entity data.
+              selectedNameVar.innerHTML = placedObjects[i]["name"];
+              descfield.innerHTML=placedObjects[i]["desc"];
+              acfield.value = placedObjects[i]["ac"];
+              hpfield.value = placedObjects[i]["hp"];
+              sizefield.value = placedObjects[i]["size"];
+              speedfield.value = placedObjects[i]["speed"];
+              strfield.value = placedObjects[i]["str"];
+              dexfield.value = placedObjects[i]["dex"];
+              confield.value = placedObjects[i]["con"];
+              intfield.value = placedObjects[i]["int"];
+              wisfield.value = placedObjects[i]["wis"];
+              chafield.value = placedObjects[i]["cha"];
+              skillsfield.value = placedObjects[i]["skills"];
+              abilitiesfield.value = placedObjects[i]["abilities"];
+              spellsfield.value = placedObjects[i]["spells"];
+              
+              selectedIndex=i;
+              //update firebase
+              //console.log("Template:"+placedObjects[i]["template"]);
+              createNewObject(placedObjects[i]["template"]);
+              var curLvl = window.sessionStorage.getItem("levelLoad");
+              curLvl = curLvl.replace("enterlvl","");
+              loadObjectData(placedObjects[i]["template"],curLvl,placedObjects[i][["name"]]);
+              
+            }
+            
+
+          }
+        
+        }
+      
+      }
+      
+      var data =setEntityData(placedObjects);
+      
+    });
+    
+
+    canvas.addEventListener("mousedown",function(e){
+      
+      isDown=true;
+      if(state == "edit"){
+        for(var i =0;i<placedObjects.length;i++){
+          if(placedObjects[i] != undefined){
+            var dist_tot = dist(canvasX,canvasY,parseFloat(placedObjects[i]["x"])+(imgWidth/2),parseFloat(placedObjects[i]["y"])+(imgHeight/2));
+            //console.log("DIST:"+dist_tot);
+            //console.log("Image Size:"+imgWidth);
+            if(dist_tot<=imgWidth*0.75){
+              selectedNameVar = document.getElementById("namefield");
+              updateEntityValues(i,selectedNameVar);
+              if(selectedIndex!=-1){
+                placedObjects[selectedIndex]["name"]=selectedNameVar.innerHTML;
+              }
+              //console.log("Pressed:"+placedObjects[i]["name"]);
+              
+              selectedNameVar.innerHTML = placedObjects[i]["name"];
+              selectedIndex=i;
+            }
+            
+
+          }
+        
+        }
+      }
+    });
+
+    canvas.addEventListener("mouseup",function(e){
+      var data =setEntityData(placedObjects);
+      
+
+
+      isDown=false;
+      if(state == "edit"){
+        
+      }
+    });
+
+    function draw_img(ctx,imgObj,color,x,y,width,height){
+      if(imgObj.complete){
+        //ctx.fillStyle=color;
+        //ctx.fillRect(x,y,width,height);
+        //ctx.globalCompositeOperation="destination-in";
+        ctx.drawImage(imgObj,x,y,width,height);
+      }
+      
+
+    }
+
+    export function setState(newState){
+      state=newState;
+      var data =setEntityData(placedObjects);
+      
+    }
+   
+    function clicked(name){
+      console.log("Clicked:"+name);
+      typeSelected=name;
+      console.log("Changed to:"+typeSelected);
+    }
+
+    function dist(x1,y1,x2,y2){
+      
+      return Math.sqrt(((x1-x2)**2)+((y1-y2)**2));
+    }
+
+    function setImage(){
+      //console.log("Type:"+typeSelected);
+      if(typeSelected == "player"){
+        img_icon.src = playerIconLink;
+
+      }else if(typeSelected.includes("template")){
+        img_icon.src = enemyIconLink;
+      }
+    }
+    //gets a name with incrementing numbers
+    function getNewName(){
+      if(typeSelected == "player"){
+        playersIndex++;
+        return "Player"+playersIndex;
+      }else if(typeSelected.includes("template")){
+        
+        
+        var newName = "template"+Math.max(typeSelected.replace("template",""),0);
+        console.log("searching:"+newName);
+        var template_name = document.getElementById(newName).querySelector("#template_name").innerHTML;
+
+        return template_name+placedObjects.length;
+      }
+      return "entity"+placedObjects.length;
+    }
+
+    var p_icon = document.getElementById("player_icon").onclick = function(){clicked("player");}
+    console.log(!!p_icon);
+    setOnClicks();
+    
+    function setOnClicks(){
+      var sel = 0;
+    //console.log("Loaded");
+    //console.log(!!document.getElementById("template"+sel));
+    while(!!document.getElementById("template"+sel)){
+      
+      let sval = 0;
+      sval = sel;
+      const selBtn = document.getElementById("template"+sel).querySelector("#template"+sel+"_btn").onclick=function(){
+        clicked("template"+sval);
+      }
+      sel++;
+    }
+    }
+
+    function updateEntityValues(i,selectedNameVar){
+              selectedNameVar = document.getElementById("namefield");
+              var descfield = document.getElementById("descfield");
+              var acfield = document.getElementById("acfield");
+              var hpfield = document.getElementById("hpfield");
+              var sizefield = document.getElementById("sizefield");
+              var speedfield = document.getElementById("speedfield");
+              var strfield = document.getElementById("strfield");
+              var dexfield = document.getElementById("dexfield");
+              var confield = document.getElementById("confield");
+              var intfield = document.getElementById("intfield");
+              var wisfield = document.getElementById("wisfield");
+              var chafield = document.getElementById("chafield");
+              var skillsfield = document.getElementById("skillsfield");;
+              var abilitiesfield = document.getElementById("abilitiesfield");
+              var spellsfield=document.getElementById("spellsfield");
+
+              //update prev entity based on old data
+              if(selectedIndex!=-1){
+                placedObjects[selectedIndex]["name"]=selectedNameVar.innerHTML;
+                placedObjects[selectedIndex]["desc"] = descfield.innerHTML;
+                placedObjects[selectedIndex]["ac"]=acfield.value;
+                placedObjects[selectedIndex]["hp"]=hpfield.value;
+                placedObjects[selectedIndex]["size"]=sizefield.value;
+                placedObjects[selectedIndex]["speed"]=speedfield.value;
+                placedObjects[selectedIndex]["str"]=strfield.value;
+                placedObjects[selectedIndex]["dex"]=dexfield.value;
+                placedObjects[selectedIndex]["con"]=confield.value;
+                placedObjects[selectedIndex]["int"]=intfield.value;
+                placedObjects[selectedIndex]["wis"]=wisfield.value;
+                placedObjects[selectedIndex]["cha"]=chafield.value;
+                placedObjects[selectedIndex]["skills"]=skillsfield.value;
+                placedObjects[selectedIndex]["abilities"]=abilitiesfield.value;
+                placedObjects[selectedIndex]["spells"]=spellsfield.value;
+              }
+              //console.log("Pressed:"+placedObjects[i]["name"]);
+              //update fields with new entity data.
+              selectedNameVar.innerHTML = placedObjects[i]["name"];
+              descfield.innerHTML=placedObjects[i]["desc"];
+              acfield.value = placedObjects[i]["ac"];
+              hpfield.value = placedObjects[i]["hp"];
+              sizefield.value = placedObjects[i]["size"];
+              speedfield.value = placedObjects[i]["speed"];
+              strfield.value = placedObjects[i]["str"];
+              dexfield.value = placedObjects[i]["dex"];
+              confield.value = placedObjects[i]["con"];
+              intfield.value = placedObjects[i]["int"];
+              wisfield.value = placedObjects[i]["wis"];
+              chafield.value = placedObjects[i]["cha"];
+              skillsfield.value = placedObjects[i]["skills"];
+              abilitiesfield.value = placedObjects[i]["abilities"];
+              spellsfield.value = placedObjects[i]["spells"];
+              
+              selectedIndex=i;
+              //update firebase
+              //console.log("Template:"+placedObjects[i]["template"]);
+              createNewObject(placedObjects[i]["template"]);
+              var curLvl = window.sessionStorage.getItem("levelLoad");
+              curLvl = curLvl.replace("enterlvl","");
+              loadObjectData(placedObjects[i]["template"],curLvl,placedObjects[i][["name"]]);
+    }
+
+    function checkAndLoadFromFirebase(){
+      
+      if(!wasFirebaseLoaded){
+        var output = loadedPreviousEntityData(placedObjects);
+        //console.log("Loaded:");
+        //console.log(entityData);
+        placedObjects=entityData;
+        wasFirebaseLoaded=output[0];
+        clearInterval(); 
+      }
+      return wasFirebaseLoaded;
+    }
+    setInterval(checkAndLoadFromFirebase,500);
+
+    function clearScreen(){
+      placedObjects=[];
+      playersIndex=0;
+
+    }
+
+    setEntityData(placedObjects);

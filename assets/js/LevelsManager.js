@@ -19,7 +19,7 @@ function displayLogin(){
   }else{
     if(!!loginBox){
       loginBox.style.visibility="hidden";
-      window.location = "https://firez2469.github.io/dungeonmaster.github.io/Levels.html";
+      window.location = "https://firez2469.github.io/DungeonMaster/Levels.html";
     }
     
     loggedinText.innerText = "Logged in as: "+loggedInVal;
@@ -30,7 +30,7 @@ function displayLogin(){
 
   logoutBtn.onclick = function(){
     window.sessionStorage.setItem("login",undefined);
-    window.location = "https://firez2469.github.io/dungeonmaster.github.io/Levels.html";
+    window.location = "https://firez2469.github.io/DungeonMaster/login.html";
   }
   
   
@@ -63,7 +63,7 @@ function enterLvlElement(id){
   window.sessionStorage.setItem('levelDesc',desc);
   //console.log("Name:"+name+" desc:"+desc);
 
-  window.location = 'https://firez2469.github.io/dungeonmaster.github.io/Levels.html';
+  window.location = 'https://firez2469.github.io/DungeonMaster/Level.html';
 }
 
 
@@ -104,15 +104,12 @@ function createNewLevel(){
 /*function save(){
   //Check if in list of levels scene
   if(!!document.getElementById("levels")){
-
   }
   //Check if templates items in scene
   if(!!document.getElementById("templates")){
-
   }
   //Chek if in list of templates page
   if(!!document.getElementById("listTemplates")){
-
   }
 }*/
 
@@ -351,9 +348,7 @@ window.addEventListener("load", function() {
       reader.readAsText(event.srcElement.files[0]);
       //console.log(fileContent);
       load(fileContent);
-
     }
-
 }});*/
 
 
@@ -464,4 +459,3 @@ if(!!document.getElementById("level"))
 function deleteAtPath(path){
   delvalue(path);
 }
-
