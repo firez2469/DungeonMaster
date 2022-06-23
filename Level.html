@@ -48,7 +48,7 @@
 
 
   <script type="module">
-
+    console.log("Starting canvas code");
     import { createNewObject,loadObjectData, setEntityData, getTemplates, loadedPreviousEntityData } from "./FirebaseLoader.mjs";
     import {entityData} from "./FirebaseLoader.mjs";
 
@@ -444,6 +444,7 @@
       var data =setEntityData(placedObjects);
       
     }
+   
     function clicked(name){
       console.log("Clicked:"+name);
       typeSelected=name;
