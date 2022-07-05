@@ -21,7 +21,7 @@
     //4. When placed down save to placedObjects array.
     //5. Add all new fields (x,y,color,name,desc, and each template fields to save)
 
-  
+
     var canvas = document.getElementById("#playersCanvas");
     var ctx = canvas.getContext("2d");
     ctx.font = "16px Arial";
@@ -32,8 +32,8 @@
     //Needs to be replicated in FirebaseLoader as well.
     var playerIconLink = 'https://pic.onlinewebfonts.com/svg/img_235012.png';
     var enemyIconLink = 'https://media.discordapp.net/attachments/884300143548063754/985266517744685096/full-face.png';
-   
-   
+
+
     var typeSelected = "player";
 
     var img_icon = new Image();
@@ -60,10 +60,10 @@
 
     window.onload = function(){
       selectedNameVar = document.getElementById("namefield");
-      
-      
 
-      
+
+
+
     }
     document.getElementById("clearbtn").onclick=function(){
       clearScreen();
@@ -80,20 +80,20 @@
       canvasY = Math.round(e.clientY - cRect.top);
       ctx.clearRect(0,0,canvas.width,canvas.height);
       //typeSelected = window.sessionStorage.getItem('type_selected');
-      
+
       setOnClicks();
-      
-      
+
+
       for(let i=0;i<placedObjects.length;i++){
         if(typeof(placedObjects[i]["img"])!="object"){
-          
+
           var newImg = new Image();
           if(placedObjects[i]["img"]=="player"){
             newImg.src=playerIconLink;
           }else{
             newImg.src = enemyIconLink;
           }
-          
+
           placedObjects[i]["img"]=newImg;
         }
         //console.log(placedObjects[i])
@@ -123,10 +123,10 @@
           }
 
         }
-         
+
       }
-     
- 
+
+
       /*ctx.fillStyle=currentColor;
       ctx.fillRect(canvasX-(imgWidth/2),canvasY-(imgHeight/2),imgWidth,imgHeight);
 
@@ -136,7 +136,7 @@
         canvasY-(imgHeight/2),
         imgWidth,
         imgHeight
-      
+
       );
       ctx.drawImage(img_icon,canvasX-(imgWidth/2),canvasY-(imgHeight/2),imgWidth,imgHeight);*/
 
@@ -152,20 +152,20 @@
       canvasY = Math.round(e.clientY - cRect.top);
       ctx.clearRect(0,0,canvas.width,canvas.height);
       //typeSelected = window.sessionStorage.getItem('type_selected');
-      
+
       setOnClicks();
-      
-      
+
+
       for(let i=0;i<placedObjects.length;i++){
         if(typeof(placedObjects[i]["img"])!="object"){
-          
+
           var newImg = new Image();
           if(placedObjects[i]["img"]=="player"){
             newImg.src=playerIconLink;
           }else{
             newImg.src = enemyIconLink;
           }
-          
+
           placedObjects[i]["img"]=newImg;
         }
         //console.log(placedObjects[i])
@@ -195,10 +195,10 @@
           }
 
         }
-         
+
       }
-     
- 
+
+
       /*ctx.fillStyle=currentColor;
       ctx.fillRect(canvasX-(imgWidth/2),canvasY-(imgHeight/2),imgWidth,imgHeight);
 
@@ -208,7 +208,7 @@
         canvasY-(imgHeight/2),
         imgWidth,
         imgHeight
-      
+
       );
       ctx.drawImage(img_icon,canvasX-(imgWidth/2),canvasY-(imgHeight/2),imgWidth,imgHeight);*/
 
@@ -246,7 +246,7 @@
               }
             }
           }
-            
+
         }
         placedObjects.push(placedObjectsElement);
         //console.log("Name:"+name);
@@ -254,7 +254,7 @@
         img_icon=new Image();
         img_icon.src = playerIconLink;
       }else if(state == "edit"){
-        
+
         //finds closest entity.
         for(var i =0;i<placedObjects.length;i++){
           if(placedObjects[i] != undefined){
@@ -299,7 +299,7 @@
                 placedObjects[selectedIndex]["abilities"]=abilitiesfield.value;
                 placedObjects[selectedIndex]["spells"]=spellsfield.value;
               }
-              
+
               //update fields with new entity data.
               selectedNameVar.innerHTML = placedObjects[i]["name"];
               descfield.innerHTML=placedObjects[i]["desc"];
@@ -316,7 +316,7 @@
               skillsfield.value = placedObjects[i]["skills"];
               abilitiesfield.value = placedObjects[i]["abilities"];
               spellsfield.value = placedObjects[i]["spells"];
-              
+
               selectedIndex=i;
               //update firebase
               //console.log("Template:"+placedObjects[i]["template"]);
@@ -324,23 +324,23 @@
               var curLvl = window.sessionStorage.getItem("levelLoad");
               curLvl = curLvl.replace("enterlvl","");
               loadObjectData(placedObjects[i]["template"],curLvl,placedObjects[i][["name"]]);
-              
+
             }
-            
+
 
           }
-        
+
         }
-      
+
       }
-      
+
       var data =setEntityData(placedObjects);
-      
+
     });
-    
+
 
     canvas.addEventListener("mousedown",function(e){
-      
+
       isDown=true;
       if(state == "edit"){
         for(var i =0;i<placedObjects.length;i++){
@@ -355,26 +355,26 @@
                 placedObjects[selectedIndex]["name"]=selectedNameVar.innerHTML;
               }
               //console.log("Pressed:"+placedObjects[i]["name"]);
-              
+
               selectedNameVar.innerHTML = placedObjects[i]["name"];
               selectedIndex=i;
             }
-            
+
 
           }
-        
+
         }
       }
     });
 
     canvas.addEventListener("mouseup",function(e){
       var data =setEntityData(placedObjects);
-      
+
 
 
       isDown=false;
       if(state == "edit"){
-        
+
       }
     });
 
@@ -385,16 +385,16 @@
         //ctx.globalCompositeOperation="destination-in";
         ctx.drawImage(imgObj,x,y,width,height);
       }
-      
+
 
     }
 
     export function setState(newState){
       state=newState;
       var data =setEntityData(placedObjects);
-      
+
     }
-   
+
     function clicked(name){
       console.log("Clicked:"+name);
       typeSelected=name;
@@ -402,7 +402,7 @@
     }
 
     function dist(x1,y1,x2,y2){
-      
+
       return Math.sqrt(((x1-x2)**2)+((y1-y2)**2));
     }
 
@@ -421,8 +421,8 @@
         playersIndex++;
         return "Player"+playersIndex;
       }else if(typeSelected.includes("template")){
-        
-        
+
+
         var newName = "template"+Math.max(typeSelected.replace("template",""),0);
         console.log("searching:"+newName);
         var template_name = document.getElementById(newName).querySelector("#template_name").innerHTML;
@@ -435,13 +435,13 @@
     var p_icon = document.getElementById("player_icon").onclick = function(){clicked("player");}
     console.log(!!p_icon);
     setOnClicks();
-    
+
     function setOnClicks(){
       var sel = 0;
     //console.log("Loaded");
     //console.log(!!document.getElementById("template"+sel));
     while(!!document.getElementById("template"+sel)){
-      
+
       let sval = 0;
       sval = sel;
       const selBtn = document.getElementById("template"+sel).querySelector("#template"+sel+"_btn").onclick=function(){
@@ -503,7 +503,7 @@
               skillsfield.value = placedObjects[i]["skills"];
               abilitiesfield.value = placedObjects[i]["abilities"];
               spellsfield.value = placedObjects[i]["spells"];
-              
+
               selectedIndex=i;
               //update firebase
               //console.log("Template:"+placedObjects[i]["template"]);
@@ -514,14 +514,14 @@
     }
 
     function checkAndLoadFromFirebase(){
-      
+
       if(!wasFirebaseLoaded){
         var output = loadedPreviousEntityData(placedObjects);
         //console.log("Loaded:");
         //console.log(entityData);
         placedObjects=entityData;
         wasFirebaseLoaded=output[0];
-        clearInterval(); 
+        clearInterval();
       }
       return wasFirebaseLoaded;
     }

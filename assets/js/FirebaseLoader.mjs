@@ -52,7 +52,7 @@ if(!!document.getElementById("save")){
     console.log("Loading level:"+lvl);
     load(globalLogin,"levels/"+lvl);
     load(globalLogin,"templates","-level");
-    
+
 
   }
 
@@ -70,7 +70,7 @@ function save(){
     if(isTemplates)
       saveTemplate(globalLogin,clone,0);
     else if(isLevel||isLevels){
-      
+
       var id = window.sessionStorage.getItem('levelLoad');
       //console.log("ID:"+id);
       if(id == "enter_lvl"){
@@ -99,7 +99,7 @@ function save(){
         curIndex++;
     }
     if(!!document.getElementById("templates")){
-      
+
       for(let i =1;i<100;i++){
         if(!!document.getElementById("levelItem"+i)){
           saveTemplate(globalLogin,document.getElementById("levelItem"+i),i);
@@ -108,12 +108,12 @@ function save(){
         }
       }
     }
-    
+
 
   }else{
     if(isLevels){
       if(!!document.getElementById("levels")){
-      
+
 
         for(let i =1;i<100;i++){
           if(!!document.getElementById("levelItem"+i)){
@@ -188,7 +188,7 @@ function saveLevel(login, clone, ind){
   if(isLevel)
     var name = document.getElementById("level").value;
     var desc = document.getElementById("level_desc").value;
-    
+
     console.log("Entity Data:");
     console.log(entityData);
     var length = window.sessionStorage.getItem("level_length");
@@ -198,14 +198,14 @@ function saveLevel(login, clone, ind){
       entityData[i]={};
       for(var j=0;j<fields.length;j++){
         var item = window.sessionStorage.getItem("level_entity"+i+fields[j]);
-        
+
         entityData[i][fields[j]] = item;
       }
     }
     if(entityData[0]==0){
       entityData={};
     }
-    
+
     set(ref(database, "/"+login+'/levels/'+ind+"/"), {
       "name":name,
       "desc":desc,
@@ -227,7 +227,7 @@ function saveLevels(login,clone,ind){
 
 
 function load(login,type,optionalParam=undefined){
-  
+
   console.log("Path:/"+login+"/"+type);
   console.log("Optional:"+optionalParam);
   return get(child(dbRef, `/`+login+`/`+type)).then((snapshot) => {
@@ -285,6 +285,7 @@ function load(login,type,optionalParam=undefined){
 
 
             console.log("value:"+value["name"]);
+
           }
 
         }
@@ -311,7 +312,10 @@ function load(login,type,optionalParam=undefined){
           ind++;
         }
         else if(type.includes("level")&& optionalParam==undefined){
+
           var id = window.sessionStorage.getItem('levelLoad');
+          loadTemplates(globalLogin);
+
           if(key == "name"){
             document.getElementById("level").value = value;
           }else if(key == "entityData"){
@@ -327,22 +331,24 @@ function load(login,type,optionalParam=undefined){
 
           console.log("key:"+key);
         }else if(type == "templates"&&optionalParam=="-level"){
+          loadTemplates(globalLogin);
           if(key!='temp_a'){
             if(key > 0){
               //createNewLevel();
             }
-            
+
             //LOAD INTO TEMPLATES ARRAY!!!!
             var _key = key;
             if(key == 0){
               _key = "";
             }
             AllTemplates.push(value);
-
+            console.log("added to all templates:");
+            console.log(AllTemplates);
             console.log("value:"+value["name"]);
           }
 
-        
+
         }
       }
       firebaseReady=true;
@@ -428,7 +434,7 @@ window.onload = function(){
   if(!!document.getElementById("templates")||document.getElementById("level")){
     loadTemplates(globalLogin);
   }
-  
+
 }
 
 
@@ -443,22 +449,31 @@ function loadTemplates(login){
         if(value != "na"){
           //console.log("Template Key:"+key,"value:"+value);
           //First template is assigned later ones are copied and assigned.
+
           if(templateIndex == 0){
             var _temp = document.getElementById("template0_btn");
-            
+
             //_temp.onclick = function(){clicked("template0")};
             var clone = document.getElementById("template0");
             console.log("Loading with name:template_name");
             var title = clone.querySelector("#template_name");
             title.innerHTML = value["name"];
-            
+
             //templateIndex++;
           }else{
             console.log("Loading:"+key);
             var original = document.getElementById("template0");
-            var clone = original.cloneNode(true);
+            var clone;
             let newTempIndex = templateIndex;
-           
+            if(!!document.getElementById("template"+newTempIndex)){
+
+              clone = document.getElementById("template"+newTempIndex);
+            }else{
+              clone = original.cloneNode(true);
+            }
+
+
+
             clone.id = "template"+newTempIndex;
             console.log("Loading with name:template0_btn");
             var icon = clone.querySelector("#template0_btn");
@@ -468,7 +483,7 @@ function loadTemplates(login){
             var title = clone.querySelector("#template_name");
             title.innerHTML = value["name"];
             document.getElementById("spawnable").appendChild(clone);
-            
+
           }
           templateIndex++;
         }
@@ -492,11 +507,11 @@ export function loadObjectData(template,level,name){
 }
 export function setEntityData(data){
   window.sessionStorage.setItem("level_length",data.length);
-  
+
   entityData=[];
   var fields = "";
   for(var i =0;i<data.length;i++){
-    
+
     for(var key in data[i]){
       var value = data[i][key];
       let endValue = value;
@@ -508,7 +523,7 @@ export function setEntityData(data){
             endValue = "enemy";
           }
         }
-        
+
       }
       window.sessionStorage.setItem("level_entity"+i+key,endValue);
       if(i==0){
@@ -525,7 +540,7 @@ export function setEntityData(data){
   //console.log("Entity Data Set:");
   //console.log(data);
   //console.log(entityData);
- 
+
 }
 
 export function getTemplates(){
@@ -533,11 +548,11 @@ export function getTemplates(){
 }
 
 export function loadedPreviousEntityData(data){
- 
+
   if(firebaseReady){
     data = entityData;
   }else{
-    
+
   }
   let newData = entityData;
   return [firebaseReady,newData];
@@ -560,15 +575,15 @@ function runLogin(){
     errorTxt.style.display = "none";
     registerLinkBtn.onclick = function(){
         if(STATE == "LOGIN"){
-            
+
             STATE = "SIGNUP";
-            
+
             settingsHeader.innerHTML = "Sign Up";
             registerLinkBtn.innerHTML = "Login!";
             registerLinkBtn.parentElement.firstChild.data="Already have an account?";
             loginBtn.innerHTML="Sign up";
         }else{
-            
+
             STATE = "LOGIN";
             settingsHeader.innerHTML="Login";
             registerLinkBtn.innerHTML=  "Sign Up!";
@@ -576,15 +591,15 @@ function runLogin(){
 
             loginBtn.innerHTML="Login";
         }
-      
+
     }
     loginBtn.onsubmit=function(){
       loginClicked();
     }
-    
+
     loginBtn.onclick = function(){
         loginClicked();
-        
+
     }
 
     function loginClicked(){
@@ -592,27 +607,27 @@ function runLogin(){
       var hash = toHash(password.value)
       console.log(hash);
       if(STATE == "LOGIN"){
-          
+
         return get(child(dbRef, `/users`)).then((snapshot) => {
           if (snapshot.exists()) {
             //console.log(snapshot.val());
             var users = snapshot.val();
             var loginSuccess = false;
             for(const [key,value] of Object.entries(users)){
-              
+
               if(key != "Bungee"){
-                
+
                 var usernameLoaded = value["name"];
                 var passLoaded = value["password"];
                 if(usernameLoaded==_email&&passLoaded==hash){
-                  
+
                   console.log("Logged in as "+usernameLoaded+"!");
                   loginSuccess=true;
                   window.sessionStorage.setItem("login",usernameLoaded.replace("@","_").replace(".","_"));
                   window.sessionStorage.setItem("loggedIn","true");
                   location.reload(true);
                 }
-              
+
               }
             }
             if(!loginSuccess){
@@ -634,16 +649,15 @@ function runLogin(){
       }
 
     }
-    
+
     function toHash(obj) {
-       
+
         var hashObj = new jsSHA("SHA-512", "TEXT", {numRounds: 1});
         hashObj.update(obj);
         var hash = hashObj.getHash("HEX");
-        
+
         return hash;
       }
   }
-    
-}
 
+}

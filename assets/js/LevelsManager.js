@@ -11,7 +11,7 @@ function displayLogin(){
   var logoutBtn = document.getElementById("logout");
   console.log(loggedInVal=="null");
   if(loggedInVal==undefined||loggedInVal=="null"||loggedInVal=="undefined"){
-    
+
     loggedInVal = "";
     loggedinText.innerText = "Not logged in";
     logoutBtn.style.visibility="hidden";
@@ -21,19 +21,19 @@ function displayLogin(){
       loginBox.style.visibility="hidden";
       window.location = "https://firez2469.github.io/DungeonMaster/Levels.html";
     }
-    
+
     loggedinText.innerText = "Logged in as: "+loggedInVal;
     logoutBtn.style.visibility="visible";
 
-    
+
   }
 
   logoutBtn.onclick = function(){
     window.sessionStorage.setItem("login",undefined);
     window.location = "https://firez2469.github.io/DungeonMaster/login.html";
   }
-  
-  
+
+
 
 }
 
@@ -306,7 +306,7 @@ function save(){
     console.log("Saved!");
 
   }else if(!!document.getElementById("levels")){
-    
+
     text="";
     curIndex=1;
     clone = document.getElementById("levelItem");
@@ -441,7 +441,7 @@ function applyToCloneLevels(clone,data){
 
 function mode(mode){
   console.log("Entering mode:"+mode);
-  
+
   if(mode == "create"){
     document.getElementById("spawnable_card").style.visibility='visible';
     document.getElementById("create_mode_btn").disabled=true;
@@ -450,7 +450,7 @@ function mode(mode){
     document.getElementById("spawnable_card").style.visibility='hidden';
     document.getElementById("create_mode_btn").disabled=false;
     document.getElementById("edit_mode_btn").disabled=true;
-    
+
   }
 }
 if(!!document.getElementById("level"))
