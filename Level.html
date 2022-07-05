@@ -44,7 +44,6 @@
 </div>
     <div class="row">
         <div class="col">
-
 <div>
 
   <canvas style="border: 1px solid black;" id="#playersCanvas"></canvas>
@@ -110,7 +109,6 @@
     var imgWidth = 20;
     var imgHeight = 20;
     var wasFirebaseLoaded = false;
-    var selectedBackground = "";
 
     window.onload = function(){
       selectedNameVar = document.getElementById("namefield");
@@ -129,9 +127,6 @@
     function renderCanvas(){
       ctx.canvas.width = window.innerWidth*.6;
       ctx.canvas.height = window.innerHeight/2;
-
-
-
       var cRect = canvas.getBoundingClientRect();
       canvasX = Math.round(e.clientX - cRect.left);
       canvasY = Math.round(e.clientY - cRect.top);
@@ -202,7 +197,6 @@
     }
 
     canvas.addEventListener("mousemove", function(e){
-
       ctx.canvas.width = window.innerWidth*.6;
       ctx.canvas.height = window.innerHeight/2;
       var cRect = canvas.getBoundingClientRect();
@@ -210,7 +204,7 @@
       canvasY = Math.round(e.clientY - cRect.top);
       ctx.clearRect(0,0,canvas.width,canvas.height);
       //typeSelected = window.sessionStorage.getItem('type_selected');
-      ctx.draw_img(selectedBackground,0,0);
+
       setOnClicks();
 
 
@@ -592,17 +586,6 @@
     }
 
     setEntityData(placedObjects);
-
-
-
-    function preview_image(event) {
-      var reader = new FileReader();
-      reader.onload = function(){
-        var output = document.getElementById('output_image');
-        output.src = reader.result;
-      }
-      reader.readAsDataURL(event.target.files[0]);
-    }
   </script>
 
 
